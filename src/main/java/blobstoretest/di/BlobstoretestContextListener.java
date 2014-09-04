@@ -24,8 +24,7 @@ import com.google.inject.servlet.GuiceServletContextListener;
  */
 public class BlobstoretestContextListener extends GuiceServletContextListener {
 
-  @Override
-  protected Injector getInjector() {
-    return Guice.createInjector(new BlobstoretestServletModule());
-  }
+  @Override protected Injector getInjector() {
+    return Guice.createInjector(new BlobstoretestServletModule(), new GaeServiceModule());
+  }  
 }

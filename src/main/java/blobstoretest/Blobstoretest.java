@@ -17,16 +17,27 @@ package blobstoretest;
 
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
-import com.google.api.server.spi.response.NotFoundException;
+import com.google.api.server.spi.config.ApiMethod.HttpMethod;
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.users.User;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
 
 /**
- * Defines v1 of a helloworld API, which provides simple "greeting" methods.
+ * Defines v1 of a blobstoretest API.
  */
 @Api(
     name = "blobstoretest",
@@ -37,43 +48,58 @@ import javax.inject.Named;
         Constants.WEB_CLIENT_ID,
         Constants.COMMAND_LINE_CLIENT_ID, 
         Constants.API_EXPLORER_CLIENT_ID}
-    //,audiences = {Constants.ANDROID_AUDIENCE}
 )
 public class Blobstoretest {
 
-  private final GreetingsRepository repository;
+  private final DatastoreService datastoreService;
+  private final BlobstoreService blobstoreService;
 
   @Inject
-  Blobstoretest(GreetingsRepository repository) {
-    this.repository = repository;
+  Blobstoretest(DatastoreService datastoreService, BlobstoreService blobstoreService) {
+    this.datastoreService = datastoreService;
+    this.blobstoreService = blobstoreService;
   }
 
-  public HelloGreeting getGreeting(@Named("id") Integer id) throws NotFoundException {
-    try {
-      return repository.getGreeting(id);
-    } catch (IndexOutOfBoundsException e) {
-      throw new NotFoundException("Greeting not found with an index: " + id);
+  @ApiMethod(name = "createUploadUrl", path = "url", httpMethod = HttpMethod.POST)
+  public UploadUrl createUploadUrl() {
+    String url = blobstoreService.createUploadUrl("/_ah/api/blobstoretest/v1/upload");
+    return new UploadUrl(url);
+  }
+    
+  @ApiMethod(name = "upload", path = "upload", httpMethod = HttpMethod.POST)
+  public List<BlobKey> upload(HttpServletRequest req, User user) {
+    Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(req);
+
+    List<BlobKey> blobKeys = blobs.get("files");
+
+    for (BlobKey bk : blobKeys) {
+      Entity file = new Entity("File");
+      file.setProperty("user", user);
+      file.setProperty("blobKey", bk);
+      datastoreService.put(file);
     }
-  }
 
-  public List<HelloGreeting> listGreeting() {
-    return repository.list();
+    return blobKeys;
   }
+  
+  @ApiMethod(name = "getUser", path = "user", httpMethod = HttpMethod.GET)
+  public User getUser(User user) {
+    return user;
+  }
+  
+  @ApiMethod(name = "listFiles", path = "files", httpMethod = HttpMethod.GET)
+  public List<BlobKey> listFiles(User user) {
 
-  @ApiMethod(name = "greetings.multiply", httpMethod = "post")
-  public HelloGreeting insertGreeting(@Named("times") Integer times, HelloGreeting greeting) {
-    HelloGreeting response = new HelloGreeting();
-    StringBuilder responseBuilder = new StringBuilder();
-    for (int i = 0; i < times; i++) {
-      responseBuilder.append(greeting.getMessage());
+    Filter filter = new FilterPredicate("user", FilterOperator.EQUAL, user);
+    Query q = new Query("File").setFilter(filter);
+    PreparedQuery pq = datastoreService.prepare(q);
+
+    List<BlobKey> files = new ArrayList<>();
+
+    for (Entity f : pq.asIterable()) {
+      files.add((BlobKey) f.getProperty("blobKey"));
     }
-    response.setMessage(responseBuilder.toString());
-    return response;
-  }
 
-  @ApiMethod(name = "greetings.authed", path = "hellogreeting/authed")
-  public HelloGreeting authedGreeting(User user) {
-    HelloGreeting response = new HelloGreeting("hello " + user.getEmail());
-    return response;
+    return files;
   }
 }
