@@ -15,28 +15,36 @@
  */
 package blobstoretest;
 
+import com.google.appengine.api.blobstore.BlobKey;
+
 /**
- * A wrapper for download urls.
+ * Shareable file information.
  * 
  * @author Andrés Testi
  */
-public class UploadUrl {
-  
-  private String value;
-  
-  public UploadUrl(String value) {
-    this.value = value;
+public class FileData {
+
+  private String filename;
+  private BlobKey blobKey;
+
+  public FileData(String filename, BlobKey blobKey) {
+    this.filename = filename;
+    this.blobKey = blobKey;
   }
   
-  public UploadUrl() {
-    this("");   
+  public String getFilename() {
+    return filename;
   }
   
-  public String getValue() {
-    return value;
+  public void setFilename(String filename) {
+    this.filename = filename;
   }
-  
-  public void setValue(String value) {
-    this.value = value;
+
+  public BlobKey getBlobKey() {
+    return blobKey;
+  }
+
+  public void setBlobKey(BlobKey blobKey) {
+    this.blobKey = blobKey;
   }
 }

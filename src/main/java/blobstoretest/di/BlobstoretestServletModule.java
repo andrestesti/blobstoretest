@@ -31,7 +31,7 @@ public class BlobstoretestServletModule extends GuiceSystemServiceServletModule 
   protected void configureServlets() {
     super.configureServlets();
 
-   // serve("/serve").with(Serve.class);
+    serve("/serve").with(Serve.class);
     serveGuiceSystemServiceServlet("/_ah/spi/*", Arrays.asList(Blobstoretest.class));
   }
 }
