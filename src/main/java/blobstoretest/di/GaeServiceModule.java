@@ -29,16 +29,13 @@ import com.google.inject.Provides;
  */
 public class GaeServiceModule extends AbstractModule {
 
-  @Override
-  protected void configure() {}
+  @Override protected void configure() {}
 
-  @Provides
-  BlobstoreService getBlobstoreService() {
+  @Provides BlobstoreService getBlobstoreService() {
     return BlobstoreServiceFactory.getBlobstoreService();
   }
   
-  @Provides
-  DatastoreService getDatastoreService() {
+  @Provides DatastoreService getDatastoreService() {
     return DatastoreServiceFactory.getDatastoreService();
   }
 }

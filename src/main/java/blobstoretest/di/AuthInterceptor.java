@@ -40,8 +40,7 @@ public class AuthInterceptor implements MethodInterceptor {
     return -1;
   }
 
-  @Override
-  public Object invoke(MethodInvocation invocation) throws Throwable {
+  @Override public Object invoke(MethodInvocation invocation) throws Throwable {
 
     int authIndex = authIndex(invocation.getMethod().getParameters());
     assert authIndex > -1;

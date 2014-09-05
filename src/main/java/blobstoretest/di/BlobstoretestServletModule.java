@@ -27,8 +27,7 @@ import java.util.Arrays;
  */
 public class BlobstoretestServletModule extends GuiceSystemServiceServletModule {
 
-  @Override
-  protected void configureServlets() {
+  @Override protected void configureServlets() {
     super.configureServlets();
 
     serve("/serve").with(Serve.class);

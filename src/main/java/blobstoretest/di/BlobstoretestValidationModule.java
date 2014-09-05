@@ -53,8 +53,7 @@ public class BlobstoretestValidationModule extends AbstractModule {
     };
   };
 
-  @Override
-  protected void configure() {
+  @Override protected void configure() {
     bindInterceptor(annotatedWith(Api.class), AUTH_MATCHER, new AuthInterceptor());
     
     // We must respect this interceptor order.

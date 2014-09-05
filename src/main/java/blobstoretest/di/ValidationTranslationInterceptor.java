@@ -29,8 +29,7 @@ import javax.validation.ConstraintViolationException;
  */
 public class ValidationTranslationInterceptor implements MethodInterceptor {
 
-  @Override
-  public Object invoke(MethodInvocation invocation) throws Throwable {
+  @Override public Object invoke(MethodInvocation invocation) throws Throwable {
     try {
       return invocation.proceed();
     } catch (ConstraintViolationException ve) {
