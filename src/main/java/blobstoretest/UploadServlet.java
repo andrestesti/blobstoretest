@@ -85,5 +85,6 @@ public class UploadServlet extends HttpServlet {
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("application/json");
     resp.getWriter().write("{}");
+    resp.getOutputStream().flush();
   }
 }
