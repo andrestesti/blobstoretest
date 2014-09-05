@@ -21,7 +21,7 @@ import blobstoretest.shared.UploadUrl;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiMethod.HttpMethod;
-import com.google.appengine.api.blobstore.BlobInfo;
+import com.google.api.server.spi.config.DefaultValue;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.datastore.DatastoreService;
@@ -38,22 +38,20 @@ import org.apache.bval.guice.Validate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 /**
- * Defines v1 of a Blobstoretest API.
+ * Defines v1 of the blobstoretest API.
  */
 @Api(
     name = "blobstoretest",
     description = "This is an API to test Blobstore",
-    version = "v1",
-    scopes = {Constants.EMAIL_SCOPE},
+    version = Constants.VERSION,
+    scopes = Constants.EMAIL_SCOPE,
  clientIds = {
         Constants.WEB_CLIENT_ID,
         Constants.COMMAND_LINE_CLIENT_ID, 
@@ -61,17 +59,13 @@ import javax.validation.constraints.Min;
 )
 public class Blobstoretest {
   
-  private static final String ENTITY_NAME = FileData.class.getSimpleName();
-
-  private final DatastoreService datastoreService;
-  private final BlobstoreService blobstoreService;
+  private final DatastoreService datastore;
+  private final BlobstoreService blobstore;
 
   @Inject
-  Blobstoretest(
-      DatastoreService datastoreService, 
-      BlobstoreService blobstoreService) {
-    this.datastoreService = datastoreService;
-    this.blobstoreService = blobstoreService;
+  Blobstoretest(DatastoreService datastore, BlobstoreService blobstore) {
+    this.datastore = datastore;
+    this.blobstore = blobstore;
   }
 
   /**
@@ -84,39 +78,10 @@ public class Blobstoretest {
    */
   @ApiMethod(name = "createUploadUrl", path = "url", httpMethod = HttpMethod.POST)
   public UploadUrl createUploadUrl(@Auth User user) {
-    String url = blobstoreService.createUploadUrl(Constants.UPLOAD_REDIRECT_URL);
+    String url = blobstore.createUploadUrl(Constants.UPLOAD_URL);
     return new UploadUrl(url);
   }
-    
-  /**
-   * Registers the uploaded files in the Datastore, and returns a list of uploaded files.
-   * 
-   * @param user the authenticated user.
-   * @param req the current request.
-   * @return a list of uploaded files.
-   */
-  @ApiMethod(name = "upload", path = "upload", httpMethod = HttpMethod.POST)
-  public List<FileData> upload(@Auth User user, HttpServletRequest req) {
-    Map<String, List<BlobInfo>> blobs = blobstoreService.getBlobInfos(req);
 
-    List<BlobInfo> infos = blobs.get("files");
-    List<FileData> result = new ArrayList<>();
-
-    for (BlobInfo i : infos) {
-      
-      FileData data = new FileData(i.getFilename(), i.getBlobKey());
-      result.add(data);
-      
-      Entity entity = new Entity(ENTITY_NAME);
-      entity.setProperty("filename", data.getFilename());
-      entity.setProperty("blobKey", data.getBlobKey());
-      
-      datastoreService.put(entity);
-    }
-
-    return result;
-  }
-   
   /**
    * Returns the paginated list of uploaded files.
    * 
@@ -127,12 +92,14 @@ public class Blobstoretest {
    */
   @ApiMethod(name = "listFiles", path = "files", httpMethod = HttpMethod.GET)
   @Validate
-  public List<FileData> listFiles(@Auth User user, 
-      @Named("offset") @Min(0) int offset, @Named("limit") @Min(0) @Max(100) int limit) {
+  public List<FileData> listFiles(
+      @Auth User user, 
+      @Named("offset") @DefaultValue("0") @Min(0) int offset, 
+      @Named("limit") @DefaultValue("100") @Min(0) @Max(100) int limit) {
     
     Filter filter = new FilterPredicate("user", FilterOperator.EQUAL, user);
-    Query q = new Query(ENTITY_NAME).setFilter(filter);
-    PreparedQuery pq = datastoreService.prepare(q);
+    Query q = new Query(Constants.ENTITY_NAME).setFilter(filter);
+    PreparedQuery pq = datastore.prepare(q);
 
     Iterable<Entity> entities = pq.asIterable(FetchOptions.Builder.withOffset(offset).limit(limit));
     List<FileData> files = new ArrayList<>();

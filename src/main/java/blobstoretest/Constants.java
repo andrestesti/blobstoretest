@@ -15,21 +15,29 @@
  */
 package blobstoretest;
 
+import blobstoretest.shared.FileData;
+
 /**
  * Contains the client IDs and scopes for allowed clients consuming the blobstoretest API.
  */
 public class Constants {
-  
+
+  public static final String VERSION = "v1";
+
   public static final String WEB_CLIENT_ID =
       "370378822481-70j2omuds3g3gfqhualkourlmkha1jun.apps.googleusercontent.com";
-  
+
   public static final String COMMAND_LINE_CLIENT_ID =
       "370378822481-ejhjqvgkekgkv4u02bku5fg27ddb623t.apps.googleusercontent.com";
-  
+
   public static final String API_EXPLORER_CLIENT_ID =
       com.google.api.server.spi.Constant.API_EXPLORER_CLIENT_ID;
 
   public static final String EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email";
 
-  public static final String UPLOAD_REDIRECT_URL = "/ah/api/blobstoretest/v1/upload";
+  public static final String UPLOAD_URL = "/upload_blobstore";
+  
+  public static final String DOWNLOAD_URL = "/download_blobstore";
+  
+  public static final String ENTITY_NAME = FileData.class.getSimpleName();
 }

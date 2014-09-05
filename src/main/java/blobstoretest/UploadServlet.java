@@ -15,10 +15,16 @@
  */
 package blobstoretest;
 
-import com.google.appengine.api.blobstore.BlobKey;
+import blobstoretest.shared.FileData;
+
+import com.google.appengine.api.blobstore.BlobInfo;
 import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.Entity;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,36 +34,56 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * This servlet downloads files from Blobstore.
+ * This servlet upload files to Blobstore.
  * 
  * @author Andrés Testi
  */
 @Singleton
-public class DownloadServlet extends HttpServlet {
+public class UploadServlet extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
   
+  private final DatastoreService datastore;
   private final BlobstoreService blobstore;
 
   @Inject
-  DownloadServlet(BlobstoreService blobstore) {
+  UploadServlet(DatastoreService datastore, BlobstoreService blobstore) {
+    this.datastore = datastore;
     this.blobstore = blobstore;
   }
 
   /**
-   * Serves a file by means a blobKey.
+   * Registers the uploaded files in the Datastore, and returns a list of uploaded files.
    */
-  @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
+  @Override protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
       throws ServletException, IOException {
-    String blobKey = req.getParameter("blobKey");
-    if(blobKey == null) {
+    Map<String, List<BlobInfo>> blobs;
+    try {
+      blobs = blobstore.getBlobInfos(req);
+    } catch (IllegalStateException e) {
       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       resp.setContentType("application/json");
       resp.getWriter().format(
-          "{\"error\": {\"message\": \"The Blobkey parameter is required\"}, \"code\": %d}", 
+          "{\"error\": {\"message\": \"Blobstore service illegal state\"}, \"code\": %d}",
           HttpServletResponse.SC_BAD_REQUEST);
-    } else {
-      blobstore.serve(new BlobKey(blobKey), resp);
+      return;
     }
+
+    List<BlobInfo> infos = blobs.get("files");
+
+    for (BlobInfo i : infos) {
+
+      FileData data = new FileData(i.getFilename(), i.getBlobKey());
+
+      Entity entity = new Entity(Constants.ENTITY_NAME);
+      entity.setProperty("filename", data.getFilename());
+      entity.setProperty("blobKey", data.getBlobKey());
+
+      datastore.put(entity);
+    }
+
+    resp.setStatus(HttpServletResponse.SC_OK);
+    resp.setContentType("application/json");
+    resp.getWriter().write("{}");
   }
 }

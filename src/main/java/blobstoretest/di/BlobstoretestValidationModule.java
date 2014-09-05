@@ -20,7 +20,7 @@ import static com.google.inject.matcher.Matchers.annotatedWith;
 import blobstoretest.Auth;
 
 import com.google.api.server.spi.config.Api;
-import com.google.api.server.spi.response.ForbiddenException;
+import com.google.api.server.spi.response.BadRequestException;
 import com.google.appengine.api.users.User;
 import com.google.inject.AbstractModule;
 import com.google.inject.matcher.AbstractMatcher;
@@ -36,7 +36,7 @@ import javax.validation.ConstraintViolationException;
 
 /**
  * This module applies validations for Bean Validators and {@link Auth} annotation.
- * Also translates {@link ConstraintViolationException} to {@link ForbiddenException}.
+ * Also translates {@link ConstraintViolationException} to {@link BadRequestException}.
  * 
  * @author Andrés Testi
  */

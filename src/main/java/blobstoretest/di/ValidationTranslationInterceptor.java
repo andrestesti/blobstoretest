@@ -15,7 +15,7 @@
  */
 package blobstoretest.di;
 
-import com.google.api.server.spi.response.ForbiddenException;
+import com.google.api.server.spi.response.BadRequestException;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -23,7 +23,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import javax.validation.ConstraintViolationException;
 
 /**
- * This interceptor translates {@link ConstraintViolationException}s to {@link ForbiddenException}s.
+ * This interceptor translates {@link ConstraintViolationException}s to {@link BadRequestException}s.
  * 
  * @author Andrés Testi
  */
@@ -33,7 +33,7 @@ public class ValidationTranslationInterceptor implements MethodInterceptor {
     try {
       return invocation.proceed();
     } catch (ConstraintViolationException ve) {
-      throw new ForbiddenException("Validation constraint failed", ve);
+      throw new BadRequestException("Validation constraint failed", ve);
     } catch (Throwable t) {
       throw t;
     }
