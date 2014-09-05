@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package blobstoretest;
+package blobstoretest.shared;
 
 /**
- * A wrapper for download urls.
+ * Shareable wrapper for download urls.
  * 
  * @author Andrés Testi
  */

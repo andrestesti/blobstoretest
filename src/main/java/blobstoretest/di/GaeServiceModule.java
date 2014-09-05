@@ -41,5 +41,4 @@ public class GaeServiceModule extends AbstractModule {
   DatastoreService getDatastoreService() {
     return DatastoreServiceFactory.getDatastoreService();
   }
-
 }

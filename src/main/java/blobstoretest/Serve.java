@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet to download files
+ * This servlet downloads files from Blobstore.
  * 
  * @author Andrés Testi
  */
@@ -47,7 +47,14 @@ public class Serve extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws 
       ServletException, IOException {
-    BlobKey blobKey = new BlobKey(req.getParameter("blobKey"));
-    blobstoreService.serve(blobKey, resp);            
+    String blobKey = req.getParameter("blobKey");
+    if(blobKey == null) {
+      resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+      resp.setContentType("application/json");
+      resp.getWriter().format(
+          "{\"error\": {\"message\": \"The Blobkey parameter is required\"}, \"code\": 403}");
+    } else {
+      blobstoreService.serve(new BlobKey(blobKey), resp);
+    }
   }
 }

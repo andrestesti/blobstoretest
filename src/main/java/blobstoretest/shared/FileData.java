@@ -13,23 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package blobstoretest.di;
+package blobstoretest.shared;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.servlet.GuiceServletContextListener;
-
-import org.apache.bval.guice.ValidationModule;
+import com.google.appengine.api.blobstore.BlobKey;
 
 /**
+ * Shareable file information.
+ * 
  * @author Andrés Testi
  */
-public class BlobstoretestContextListener extends GuiceServletContextListener {
+public class FileData {
 
-  @Override protected Injector getInjector() {
-    return Guice.createInjector(
-        new BlobstoretestServletModule(), 
-        new GaeServiceModule(),
-        new BlobstoretestValidationModule());
-  }  
+  private String filename;
+  private BlobKey blobKey;
+
+  public FileData(String filename, BlobKey blobKey) {
+    this.filename = filename;
+    this.blobKey = blobKey;
+  }
+  
+  public String getFilename() {
+    return filename;
+  }
+  
+  public void setFilename(String filename) {
+    this.filename = filename;
+  }
+
+  public BlobKey getBlobKey() {
+    return blobKey;
+  }
+
+  public void setBlobKey(BlobKey blobKey) {
+    this.blobKey = blobKey;
+  }
 }

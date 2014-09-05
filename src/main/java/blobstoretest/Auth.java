@@ -15,36 +15,20 @@
  */
 package blobstoretest;
 
-import com.google.appengine.api.blobstore.BlobKey;
+import com.google.api.server.spi.response.UnauthorizedException;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Shareable file information.
+ * This annotation validates if a User is authenticated. 
+ * If the user is null, a {@link UnauthorizedException} exception is thrown.  
  * 
  * @author Andrés Testi
  */
-public class FileData {
-
-  private String filename;
-  private BlobKey blobKey;
-
-  public FileData(String filename, BlobKey blobKey) {
-    this.filename = filename;
-    this.blobKey = blobKey;
-  }
-  
-  public String getFilename() {
-    return filename;
-  }
-  
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  public BlobKey getBlobKey() {
-    return blobKey;
-  }
-
-  public void setBlobKey(BlobKey blobKey) {
-    this.blobKey = blobKey;
-  }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+public @interface Auth {
 }
