@@ -33,20 +33,19 @@ import javax.servlet.http.HttpServletResponse;
  * @author Andrés Testi
  */
 @Singleton
-public class Serve extends HttpServlet {
+public class DownloadServlet extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
   
   private final BlobstoreService blobstoreService;
 
   @Inject
-  Serve(BlobstoreService blobstoreService) {
+  DownloadServlet(BlobstoreService blobstoreService) {
     this.blobstoreService = blobstoreService;
   }
 
-  @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws 
-      ServletException, IOException {
+  @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
+      throws ServletException, IOException {
     String blobKey = req.getParameter("blobKey");
     if(blobKey == null) {
       resp.setStatus(HttpServletResponse.SC_FORBIDDEN);

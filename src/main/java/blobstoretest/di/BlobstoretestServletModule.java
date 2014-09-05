@@ -16,7 +16,7 @@
 package blobstoretest.di;
 
 import blobstoretest.Blobstoretest;
-import blobstoretest.Serve;
+import blobstoretest.DownloadServlet;
 
 import com.google.api.server.spi.guice.GuiceSystemServiceServletModule;
 
@@ -30,7 +30,7 @@ public class BlobstoretestServletModule extends GuiceSystemServiceServletModule 
   @Override protected void configureServlets() {
     super.configureServlets();
 
-    serve("/serve").with(Serve.class);
+    serve("/serve").with(DownloadServlet.class);
     serveGuiceSystemServiceServlet("/_ah/spi/*", Arrays.asList(Blobstoretest.class));
   }
 }
