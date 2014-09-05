@@ -19,8 +19,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 
-import org.apache.bval.guice.ValidationModule;
-
 /**
  * @author Andrés Testi
  */
