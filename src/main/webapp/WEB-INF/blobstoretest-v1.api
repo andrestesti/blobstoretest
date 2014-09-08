@@ -1,0 +1,129 @@
+{
+  "extends" : "thirdParty.api",
+  "abstract" : false,
+  "root" : "https://helpful-emitter-691.appspot.com/_ah/api",
+  "name" : "blobstoretest",
+  "version" : "v1",
+  "description" : "This is an API to test Blobstore",
+  "defaultVersion" : false,
+  "adapter" : {
+    "bns" : "https://helpful-emitter-691.appspot.com/_ah/spi",
+    "deadline" : 65.0,
+    "type" : "lily"
+  },
+  "auth" : {
+    "allowCookieAuth" : false
+  },
+  "frontendLimits" : {
+    "unregisteredUserQps" : -1,
+    "unregisteredQps" : -1,
+    "unregisteredDaily" : -1,
+    "rules" : [ ]
+  },
+  "cacheControl" : {
+    "type" : "no-cache",
+    "maxAge" : 0
+  },
+  "methods" : {
+    "blobstoretest.createUploadUrl" : {
+      "path" : "url",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "370378822481-70j2omuds3g3gfqhualkourlmkha1jun.apps.googleusercontent.com", "370378822481-ejhjqvgkekgkv4u02bku5fg27ddb623t.apps.googleusercontent.com", "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "blobstoretest.Blobstoretest.createUploadUrl",
+      "request" : {
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "blobstoretest.listFiles" : {
+      "path" : "files",
+      "httpMethod" : "GET",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "370378822481-70j2omuds3g3gfqhualkourlmkha1jun.apps.googleusercontent.com", "370378822481-ejhjqvgkekgkv4u02bku5fg27ddb623t.apps.googleusercontent.com", "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "blobstoretest.Blobstoretest.listFiles",
+      "request" : {
+        "parameters" : {
+          "offset" : {
+            "type" : "int32",
+            "required" : false,
+            "default" : "0"
+          },
+          "limit" : {
+            "type" : "int32",
+            "required" : false,
+            "default" : "100"
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    }
+  },
+  "descriptor" : {
+    "schemas" : {
+      "UploadUrl" : {
+        "id" : "UploadUrl",
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FileData" : {
+        "id" : "FileData",
+        "type" : "object",
+        "properties" : {
+          "filename" : {
+            "type" : "string"
+          },
+          "blobKey" : {
+            "$ref" : "BlobKey"
+          }
+        }
+      },
+      "BlobKey" : {
+        "id" : "BlobKey",
+        "type" : "object",
+        "properties" : {
+          "keyString" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FileDataCollection" : {
+        "id" : "FileDataCollection",
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "FileData"
+            }
+          }
+        }
+      }
+    },
+    "methods" : {
+      "blobstoretest.Blobstoretest.createUploadUrl" : {
+        "response" : {
+          "$ref" : "UploadUrl"
+        }
+      },
+      "blobstoretest.Blobstoretest.listFiles" : {
+        "response" : {
+          "$ref" : "FileDataCollection"
+        }
+      }
+    }
+  }
+}

@@ -35,9 +35,9 @@ public class Constants {
 
   public static final String EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email";
 
-  public static final String UPLOAD_URL = "/upload_blobstore";
+  public static final String UPLOAD_URL = "/upload";
   
-  public static final String DOWNLOAD_URL = "/download_blobstore";
+  public static final String DOWNLOAD_URL = "/download";
   
   public static final String ENTITY_NAME = FileData.class.getSimpleName();
 }

@@ -15,8 +15,13 @@
  */
 package blobstoretest;
 
+import blobstoretest.shared.ErrorMessage;
+import blobstoretest.shared.ErrorResponse;
+
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 
@@ -33,10 +38,9 @@ import javax.servlet.http.HttpServletResponse;
  * @author Andrés Testi
  */
 @Singleton
+@SuppressWarnings("serial")
 public class DownloadServlet extends HttpServlet {
 
-  private static final long serialVersionUID = 1L;
-  
   private final BlobstoreService blobstore;
 
   @Inject
@@ -51,11 +55,19 @@ public class DownloadServlet extends HttpServlet {
       throws ServletException, IOException {
     String blobKey = req.getParameter("blobKey");
     if(blobKey == null) {
+      
+      ErrorResponse error = new ErrorResponse();
+      error.setCode(HttpServletResponse.SC_BAD_REQUEST);
+      ErrorMessage message = new ErrorMessage();
+      message.setMessage("The Blobkey parameter is required");
+            
       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       resp.setContentType("application/json");
-      resp.getWriter().format(
-          "{\"error\": {\"message\": \"The Blobkey parameter is required\"}, \"code\": %d}", 
-          HttpServletResponse.SC_BAD_REQUEST);
+      
+      GsonBuilder builder = new GsonBuilder();
+      Gson gson = builder.create();      
+      resp.getWriter().print(gson.toJson(error));
+      
     } else {
       blobstore.serve(new BlobKey(blobKey), resp);
     }

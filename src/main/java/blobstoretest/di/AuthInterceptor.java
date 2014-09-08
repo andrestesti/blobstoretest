@@ -22,8 +22,6 @@ import com.google.api.server.spi.response.UnauthorizedException;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import java.lang.reflect.Parameter;
-
 /**
  * This interceptor applies validation for {@link Auth} annotation.
  * 
@@ -31,18 +29,19 @@ import java.lang.reflect.Parameter;
  */
 public class AuthInterceptor implements MethodInterceptor {
 
-  public static int authIndex(Parameter[] params) {
-    for (int i = 0; i < params.length; i++) {
-      if (params[i].getAnnotation(Auth.class) != null) {
+  public static int authIndex(Class<?>[] paramTypes) {
+    for (int i = 0; i < paramTypes.length; i++) {
+      if (paramTypes[i].getAnnotation(Auth.class) != null) {
         return i;
       }
     }
     return -1;
   }
 
-  @Override public Object invoke(MethodInvocation invocation) throws Throwable {
+  @Override
+  public Object invoke(MethodInvocation invocation) throws Throwable {
 
-    int authIndex = authIndex(invocation.getMethod().getParameters());
+    int authIndex = authIndex(invocation.getMethod().getParameterTypes());
     assert authIndex > -1;
 
     Object o = invocation.getArguments()[authIndex];

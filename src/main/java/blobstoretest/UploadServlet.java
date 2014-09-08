@@ -15,14 +15,19 @@
  */
 package blobstoretest;
 
+import blobstoretest.shared.ErrorMessage;
+import blobstoretest.shared.ErrorResponse;
 import blobstoretest.shared.FileData;
 
 import com.google.appengine.api.blobstore.BlobInfo;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,37 +44,49 @@ import javax.servlet.http.HttpServletResponse;
  * @author Andrés Testi
  */
 @Singleton
+@SuppressWarnings("serial")
 public class UploadServlet extends HttpServlet {
-
-  private static final long serialVersionUID = 1L;
   
   private final DatastoreService datastore;
   private final BlobstoreService blobstore;
-
+ 
   @Inject
-  UploadServlet(DatastoreService datastore, BlobstoreService blobstore) {
+  UploadServlet(
+      DatastoreService datastore, 
+      BlobstoreService blobstore) {
     this.datastore = datastore;
     this.blobstore = blobstore;
   }
 
   /**
-   * Registers the uploaded files in the Datastore, and returns a list of uploaded files.
+   * Registers the uploaded files in the Datastore.
    */
-  @Override protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
-      throws ServletException, IOException {
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
+      IOException {
+
+    resp.setContentType("application/json");
+
+    GsonBuilder builder = new GsonBuilder();
+    Gson gson = builder.create();
+
     Map<String, List<BlobInfo>> blobs;
     try {
       blobs = blobstore.getBlobInfos(req);
     } catch (IllegalStateException e) {
+
+      ErrorResponse error = new ErrorResponse();
+      error.setCode(HttpServletResponse.SC_BAD_REQUEST);
+      ErrorMessage message = new ErrorMessage();
+      message.setMessage("Blobstore service illegal state");
+
       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      resp.setContentType("application/json");
-      resp.getWriter().format(
-          "{\"error\": {\"message\": \"Blobstore service illegal state\"}, \"code\": %d}",
-          HttpServletResponse.SC_BAD_REQUEST);
+      resp.getWriter().print(gson.toJson(error));
       return;
     }
 
     List<BlobInfo> infos = blobs.get("files");
+    ArrayList<FileData> files = new ArrayList<>();
 
     for (BlobInfo i : infos) {
 
@@ -79,12 +96,13 @@ public class UploadServlet extends HttpServlet {
       entity.setProperty("filename", data.getFilename());
       entity.setProperty("blobKey", data.getBlobKey());
 
+      files.add(data);
+
       datastore.put(entity);
     }
 
     resp.setStatus(HttpServletResponse.SC_OK);
-    resp.setContentType("application/json");
-    resp.getWriter().write("{}");
-    resp.getOutputStream().flush();
+
+    resp.getWriter().print(gson.toJson(files));
   }
 }

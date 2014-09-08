@@ -18,6 +18,7 @@ package blobstoretest.di;
 import blobstoretest.Blobstoretest;
 import blobstoretest.Constants;
 import blobstoretest.DownloadServlet;
+import blobstoretest.OAuthFilter;
 import blobstoretest.UploadServlet;
 
 import com.google.api.server.spi.guice.GuiceSystemServiceServletModule;
@@ -32,8 +33,10 @@ public class BlobstoretestServletModule extends GuiceSystemServiceServletModule 
   @Override protected void configureServlets() {
     super.configureServlets();
 
-    serve(Constants.UPLOAD_URL).with(UploadServlet.class);
+    serve(Constants.UPLOAD_URL).with(UploadServlet.class);    
     serve(Constants.DOWNLOAD_URL).with(DownloadServlet.class);
+    
+    filter(Constants.UPLOAD_URL, Constants.DOWNLOAD_URL).through(OAuthFilter.class);
     
     serveGuiceSystemServiceServlet("/_ah/spi/*", Arrays.asList(Blobstoretest.class));
   }

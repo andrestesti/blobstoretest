@@ -29,9 +29,6 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.Filter;
-import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.users.User;
 
 import org.apache.bval.guice.Validate;
@@ -69,8 +66,8 @@ public class Blobstoretest {
   }
 
   /**
-   * Returns an upload URL for Blobstore. This is a POST method to respect the RESTful principles,
-   * because this is not an idempotent action.
+   * Returns an upload URL for Blobstore. This is a POST method to respect
+   * the RESTful principles, because this is not an idempotent action. 
    * Authentication required.
    * 
    * @param user the authenticated user.
@@ -97,8 +94,7 @@ public class Blobstoretest {
       @Named("offset") @DefaultValue("0") @Min(0) int offset, 
       @Named("limit") @DefaultValue("100") @Min(0) @Max(100) int limit) {
     
-    Filter filter = new FilterPredicate("user", FilterOperator.EQUAL, user);
-    Query q = new Query(Constants.ENTITY_NAME).setFilter(filter);
+    Query q = new Query(Constants.ENTITY_NAME);
     PreparedQuery pq = datastore.prepare(q);
 
     Iterable<Entity> entities = pq.asIterable(FetchOptions.Builder.withOffset(offset).limit(limit));

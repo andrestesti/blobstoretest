@@ -19,8 +19,12 @@ import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.oauth.OAuthService;
+import com.google.appengine.api.oauth.OAuthServiceFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+
+import javax.inject.Singleton;
 
 /**
  * AppEngine services.
@@ -31,11 +35,21 @@ public class GaeServiceModule extends AbstractModule {
 
   @Override protected void configure() {}
 
-  @Provides BlobstoreService getBlobstoreService() {
+  @Provides 
+  @Singleton
+  BlobstoreService getBlobstoreService() {
     return BlobstoreServiceFactory.getBlobstoreService();
   }
   
-  @Provides DatastoreService getDatastoreService() {
+  @Provides
+  @Singleton
+  DatastoreService getDatastoreService() {
     return DatastoreServiceFactory.getDatastoreService();
+  }
+  
+  @Provides
+  @Singleton
+  OAuthService getOauthService() {
+    return OAuthServiceFactory.getOAuthService();
   }
 }

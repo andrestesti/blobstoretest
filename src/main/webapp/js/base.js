@@ -34,46 +34,47 @@ blobstoretest.signedIn = false;
  * Loads the application UI after the user has completed auth.
  */
 blobstoretest.userAuthed = function() {
-	var request = gapi.client.oauth2.userinfo.get().execute(function(resp) {
-		if (!resp.code) {
-			blobstoretest.signedIn = true;
-			$('#signinButton').text('Sign out');
-			$('#addFile').prop('disabled', false);
-			$('#listFiles').prop('disabled', false);
-		} else {
-			blobstoretest.signedIn = false;
-			$('#addFile').prop('disabled', true);
-			$('#listFiles').prop('disabled', true);
-		}
-	});
+  var request = gapi.client.oauth2.userinfo.get().execute(function(resp) {
+    if (!resp.code) {
+      blobstoretest.signedIn = true;
+      $('#signinButton').text('Sign out');
+      $('#addFile').prop('disabled', false);
+      $('#listFiles').prop('disabled', false);
+      blobstoretest.listFiles();
+    } else {
+      blobstoretest.signedIn = false;
+      $('#addFile').prop('disabled', true);
+      $('#listFiles').prop('disabled', true);
+    }
+  });
 };
 
 /**
  * Handles the auth flow, with the given value for immediate mode.
  * 
  * @param {boolean}
- *            mode Whether or not to use immediate mode.
+ *          mode Whether or not to use immediate mode.
  * @param {Function}
- *            callback Callback to call on completion.
+ *          callback Callback to call on completion.
  */
 blobstoretest.signin = function(mode, callback) {
-	gapi.auth.authorize({
-		client_id : blobstoretest.CLIENT_ID,
-		scope : blobstoretest.SCOPES,
-		immediate : mode
-	}, callback);
+  gapi.auth.authorize({
+    client_id : blobstoretest.CLIENT_ID,
+    scope : blobstoretest.SCOPES,
+    immediate : mode
+  }, callback);
 };
 
 /**
  * Presents the user with the authorization popup.
  */
 blobstoretest.auth = function() {
-	if (!blobstoretest.signedIn) {
-		blobstoretest.signin(false, blobstoretest.userAuthed);
-	} else {
-		blobstoretest.signedIn = false;
-		$('#signinButton').text('Sign in');
-	}
+  if (!blobstoretest.signedIn) {
+    blobstoretest.signin(false, blobstoretest.userAuthed);
+  } else {
+    blobstoretest.signedIn = false;
+    $('#signinButton').text('Sign in');
+  }
 };
 
 /**
@@ -81,33 +82,34 @@ blobstoretest.auth = function() {
  * print.
  */
 blobstoretest.print = function(fileData) {
-	$('#outputLog').append(
-			'<div class="row"><a href="/download?blobKey=' + fileData.blobKey
-					+ '">' + fileData.filename + '</a></div>');
+  $('#outputLog').append(
+      '<div class="row"><div class="span12"><a target="_blank" href="/download?blobKey='
+          + fileData.blobKey.keyString + '">' + fileData.filename + '</a></div></div>');
 };
 
 /**
  * Lists files via the API.
  */
 blobstoretest.listFiles = function() {
-	gapi.client.blobstoretest.listFiles().execute(function(resp) {
-		if (!resp.code) {
-			resp.items = resp.items || [];
-			for (var i = 0; i < resp.items.length; i++) {
-				blobstoretest.print(resp.items[i]);
-			}
-		}
-	});
+  gapi.client.blobstoretest.listFiles().execute(function(resp) {
+    if (!resp.code) {
+      resp.items = resp.items || [];
+      $('#outputLog').empty();
+      for (var i = 0; i < resp.items.length; i++) {
+        blobstoretest.print(resp.items[i]);
+      }
+    }
+  });
 };
 
 blobstoretest.disableUpload = function() {
-	$('#addFile').prop('disabled', false);
-	$('#uploadForm').hide();
+  $('#addFile').prop('disabled', false);
+  $('#uploadForm').hide();
 }
 
 blobstoretest.enableUpload = function() {
-	$('#addFile').prop('disabled', true);
-	$('#uploadForm').show();
+  $('#addFile').prop('disabled', true);
+  $('#uploadForm').show();
 }
 
 /**
@@ -115,86 +117,89 @@ blobstoretest.enableUpload = function() {
  */
 blobstoretest.enableButtons = function() {
 
-	var uploadUrl = '';
+  var uploadUrl = '';
 
-	$('#addFile').click(function() {
+  $('#addFile').click(function() {
 
-		gapi.client.blobstoretest.createUploadUrl().execute(function(resp) {
-			if (!resp.code) {
-				uploadUrl = resp.value;
-				blobstoretest.enableUpload();
-			}
-		});
-	});
+    gapi.client.blobstoretest.createUploadUrl().execute(function(resp) {
+      if (!resp.code) {
+        uploadUrl = resp.value;
+        blobstoretest.enableUpload();
+      }
+    });
+  });
 
-	$('#uploadButton').click(function() {
-		var formData = new FormData($('#uploadForm')[0]);
-		$.ajax({
-			url : uploadUrl, // Server script to process data
-			type : 'POST',
-			/*
-			 * xhr: function() { // Custom XMLHttpRequest var myXhr =
-			 * $.ajaxSettings.xhr(); if(myXhr.upload){ // Check if upload
-			 * property exists
-			 * myXhr.upload.addEventListener('progress',progressHandlingFunction,
-			 * false); // For handling the progress of the upload } return
-			 * myXhr; },
-			 */
-			// Ajax events
-			// beforeSend: beforeSendHandler,
-			success : function() {
-				blobstoretest.disableUpload();
-			},
-			// error: errorHandler,
-			// Form data
-			data : formData,
-			// Options to tell jQuery not to process data or worry about
-			// content-type.
-			cache : false,
-			contentType : false,
-			processData : false
-		});
-	});
+  $('#uploadButton').click(function() {
+    var formData = new FormData($('#uploadForm')[0]);
+    $.ajax({
+      url : uploadUrl, // Server script to process data
+      type : 'POST',
+      /*
+       * xhr: function() { // Custom XMLHttpRequest var myXhr =
+       * $.ajaxSettings.xhr(); if(myXhr.upload){ // Check if upload property
+       * exists
+       * myXhr.upload.addEventListener('progress',progressHandlingFunction,
+       * false); // For handling the progress of the upload } return myXhr; },
+       */
+      // Ajax events
+      // beforeSend: beforeSendHandler,
+      success : function() {
+        blobstoretest.disableUpload();
+        blobstoretest.listFiles();
+      },
+      error : function() {
+        window.alert('Uploading failure');
+        blobstoretest.disableUpload();
+      },
+      // Form data
+      data : formData,
+      // Options to tell jQuery not to process data or worry about
+      // content-type.
+      cache : false,
+      contentType : false,
+      processData : false
+    });
+  });
 
-	$('#listFiles').click(function() {
-		blobstoretest.listFiles();
-	});
+  $('#listFiles').click(function() {
+    blobstoretest.listFiles();
+  });
 
-	$('#signinButton').click(function() {
-		blobstoretest.auth();
-	});
+  $('#signinButton').click(function() {
+    blobstoretest.auth();
+  });
 
-	$('#uploadForm').submit(function(event) {
-		var uploadButton = $('uploadButton');
-		event.preventDefault();
+  $('#uploadForm').submit(function(event) {
+    var uploadButton = $('uploadButton');
+    event.preventDefault();
 
-		// Update button text.
-		uploadButton.innerHTML = 'Uploading...';
+    // Update button text.
+    uploadButton.innerHTML = 'Uploading...';
 
-		// The rest of the code will go here...
-	});
+    // The rest of the code will go here...
+  });
 };
 
 /**
  * Initializes the application.
  * 
  * @param {string}
- *            apiRoot Root of the API's path.
+ *          apiRoot Root of the API's path.
  */
 blobstoretest.init = function() {
 
-	var apiRoot = '//' + window.location.host + '/_ah/api';
-	// Loads the OAuth and helloworld APIs asynchronously, and triggers login
-	// when they have completed.
-	var apisToLoad;
-	var callback = function() {
-		if (--apisToLoad == 0) {
-			blobstoretest.enableButtons();
-			blobstoretest.signin(true, blobstoretest.userAuthed);
-		}
-	}
+  var apiRoot = '//' + window.location.host + '/_ah/api';
+  // Loads the OAuth and blobstoretest APIs asynchronously, and triggers login
+  // when they have completed.
+  var apisToLoad;
+  var callback = function() {
+    if (--apisToLoad == 0) {
+      blobstoretest.enableButtons();
+      blobstoretest.signin(true, blobstoretest.userAuthed);
+    }
+  }
 
-	apisToLoad = 2; // must match number of calls to gapi.client.load()
-	gapi.client.load('blobstoretest', 'v1', callback, apiRoot);
-	gapi.client.load('oauth2', 'v2', callback);
+  apisToLoad = 2; // must match number of calls to gapi.client.load()
+  gapi.client.load('blobstoretest', 'v1', callback, apiRoot);
+  gapi.client.load('oauth2', 'v2', callback);
 }

@@ -30,7 +30,6 @@ import org.apache.bval.guice.Validate;
 import org.apache.bval.guice.ValidationModule;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
 import javax.validation.ConstraintViolationException;
 
@@ -44,18 +43,20 @@ public class BlobstoretestValidationModule extends AbstractModule {
 
   private static final Matcher<Method> AUTH_MATCHER = new AbstractMatcher<Method>() {
     public boolean matches(Method m) {
-      int authIndex = AuthInterceptor.authIndex(m.getParameters());
+      Class<?>[] paramTypes = m.getParameterTypes();
+      int authIndex = AuthInterceptor.authIndex(paramTypes);
       if (authIndex > -1) {
-        Parameter p = m.getParameters()[authIndex];
-        return User.class.isAssignableFrom(p.getType());
+        Class<?> p = paramTypes[authIndex];
+        return User.class.isAssignableFrom(p);
       }
       return false;
     };
   };
 
-  @Override protected void configure() {
+  @Override
+  protected void configure() {
     bindInterceptor(annotatedWith(Api.class), AUTH_MATCHER, new AuthInterceptor());
-    
+
     // We must respect this interceptor order.
     bindInterceptor(annotatedWith(Api.class), annotatedWith(Validate.class),
         new ValidationTranslationInterceptor());
