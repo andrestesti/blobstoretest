@@ -27,12 +27,12 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import com.google.common.collect.ImmutableList;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,22 +63,27 @@ public class ApiTest {
 
     Blobstoretest blobstoretest = new Blobstoretest(datastore, blobstore);
 
-    FileData fd1 = new FileData("file1.txt", new BlobKey("file1"));
-    putEntity(datastore, fd1);
-
-    FileData fd2 = new FileData("file2.txt", new BlobKey("file2"));
-    putEntity(datastore, fd2);
-
-    List<FileData> expected = ImmutableList.of(fd1, fd2);
-
+    List<FileData> savedFiles = generateFiles(10);
+    putEntities(datastore, savedFiles);
+    
+    List<FileData> expected = savedFiles.subList(0, 5);
     List<FileData> actual = blobstoretest.listFiles(null, 0, 5);
 
     assertEquals(expected, actual);
   }
-
-  private Entity putEntity(DatastoreService datastore, FileData fileData) {
-    Entity entity = FileDataMapper.toEntity(fileData);
-    datastore.put(entity);
-    return entity;
+  
+  private void putEntities(DatastoreService datastore, List<FileData> files) {
+    for (FileData f : files) {
+      Entity entity = FileDataMapper.toEntity(f);
+      datastore.put(entity);
+    }
+  }
+  
+  private List<FileData> generateFiles(int count) {
+    ArrayList<FileData> files = new ArrayList<>();
+    for (int i = 0; i < count; i++) {
+      files.add(new FileData("file" + i + ".txt", new BlobKey("file" + i)));
+    }
+    return files;
   }
 }
