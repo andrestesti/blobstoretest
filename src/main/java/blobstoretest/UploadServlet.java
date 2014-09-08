@@ -51,9 +51,7 @@ public class UploadServlet extends HttpServlet {
   private final BlobstoreService blobstore;
  
   @Inject
-  UploadServlet(
-      DatastoreService datastore, 
-      BlobstoreService blobstore) {
+  UploadServlet(DatastoreService datastore, BlobstoreService blobstore) {
     this.datastore = datastore;
     this.blobstore = blobstore;
   }
@@ -62,8 +60,8 @@ public class UploadServlet extends HttpServlet {
    * Registers the uploaded files in the Datastore.
    */
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
-      IOException {
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
+      throws ServletException, IOException {
 
     resp.setContentType("application/json");
 
