@@ -132,17 +132,8 @@ blobstoretest.enableButtons = function() {
   $('#uploadButton').click(function() {
     var formData = new FormData($('#uploadForm')[0]);
     $.ajax({
-      url : uploadUrl, // Server script to process data
+      url : uploadUrl, 
       type : 'POST',
-      /*
-       * xhr: function() { // Custom XMLHttpRequest var myXhr =
-       * $.ajaxSettings.xhr(); if(myXhr.upload){ // Check if upload property
-       * exists
-       * myXhr.upload.addEventListener('progress',progressHandlingFunction,
-       * false); // For handling the progress of the upload } return myXhr; },
-       */
-      // Ajax events
-      // beforeSend: beforeSendHandler,
       success : function() {
         blobstoretest.disableUpload();
         blobstoretest.listFiles();
@@ -151,10 +142,7 @@ blobstoretest.enableButtons = function() {
         window.alert('Uploading failure');
         blobstoretest.disableUpload();
       },
-      // Form data
       data : formData,
-      // Options to tell jQuery not to process data or worry about
-      // content-type.
       cache : false,
       contentType : false,
       processData : false
