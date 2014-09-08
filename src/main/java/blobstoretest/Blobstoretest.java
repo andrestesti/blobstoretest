@@ -22,7 +22,6 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiMethod.HttpMethod;
 import com.google.api.server.spi.config.DefaultValue;
-import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
@@ -101,9 +100,8 @@ public class Blobstoretest {
     List<FileData> files = new ArrayList<>();
 
     for (Entity e : entities) {
-      String filename = (String) e.getProperty("filename");
-      BlobKey blobKey = (BlobKey) e.getProperty("blobKey");
-      files.add(new FileData(filename, blobKey));
+      FileData fileData = FileDataMapper.fromEntity(e);
+      files.add(fileData);
     }
 
     return files;

@@ -17,6 +17,8 @@ package blobstoretest.shared;
 
 import com.google.appengine.api.blobstore.BlobKey;
 
+import java.util.Objects;
+
 /**
  * Shareable file information.
  * 
@@ -30,6 +32,10 @@ public class FileData {
   public FileData(String filename, BlobKey blobKey) {
     this.filename = filename;
     this.blobKey = blobKey;
+  }
+  
+  public FileData() {
+    this(null, null);
   }
   
   public String getFilename() {
@@ -46,5 +52,22 @@ public class FileData {
 
   public void setBlobKey(BlobKey blobKey) {
     this.blobKey = blobKey;
+  }
+  
+  @Override public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final FileData other = (FileData) obj;
+
+    return Objects.equals(this.blobKey, other.blobKey)
+        && Objects.equals(this.filename, other.filename);
+  }
+  
+  @Override public int hashCode() {
+    return Objects.hash(blobKey, filename);
   }
 }

@@ -62,7 +62,6 @@ public class UploadServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
       throws ServletException, IOException {
-
     resp.setContentType("application/json");
 
     GsonBuilder builder = new GsonBuilder();
@@ -87,20 +86,13 @@ public class UploadServlet extends HttpServlet {
     ArrayList<FileData> files = new ArrayList<>();
 
     for (BlobInfo i : infos) {
-
-      FileData data = new FileData(i.getFilename(), i.getBlobKey());
-
-      Entity entity = new Entity(Constants.ENTITY_NAME);
-      entity.setProperty("filename", data.getFilename());
-      entity.setProperty("blobKey", data.getBlobKey());
-
-      files.add(data);
-
+      FileData fileData = new FileData(i.getFilename(), i.getBlobKey());
+      Entity entity = FileDataMapper.toEntity(fileData);
+      files.add(fileData);
       datastore.put(entity);
     }
 
     resp.setStatus(HttpServletResponse.SC_OK);
-
     resp.getWriter().print(gson.toJson(files));
   }
 }
