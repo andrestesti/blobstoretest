@@ -48,10 +48,11 @@ import javax.validation.constraints.Min;
     description = "This is an API to test Blobstore",
     version = Constants.VERSION,
     scopes = Constants.EMAIL_SCOPE,
- clientIds = {
+  clientIds = {
         Constants.WEB_CLIENT_ID,
-        Constants.COMMAND_LINE_CLIENT_ID, 
-        Constants.API_EXPLORER_CLIENT_ID}
+        Constants.COMMAND_LINE_CLIENT_ID,
+        Constants.API_EXPLORER_CLIENT_ID
+  }
 )
 public class Blobstoretest {
   
@@ -96,7 +97,8 @@ public class Blobstoretest {
     Query q = new Query(Constants.ENTITY_NAME);
     PreparedQuery pq = datastore.prepare(q);
 
-    Iterable<Entity> entities = pq.asIterable(FetchOptions.Builder.withOffset(offset).limit(limit));
+    Iterable<Entity> entities = 
+        pq.asIterable(FetchOptions.Builder.withOffset(offset).limit(limit));
     List<FileData> files = new ArrayList<>();
 
     for (Entity e : entities) {
