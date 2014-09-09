@@ -15,6 +15,8 @@
  */
 package blobstoretest;
 
+import static blobstoretest.FileDataConverters.entityToFileData;
+
 import blobstoretest.shared.FileData;
 import blobstoretest.shared.UploadUrl;
 
@@ -29,16 +31,18 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.users.User;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 import org.apache.bval.guice.Validate;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+
 
 /**
  * Defines v1 of the blobstoretest API.
@@ -96,16 +100,8 @@ public class Blobstoretest {
     
     Query q = new Query(Constants.ENTITY_NAME);
     PreparedQuery pq = datastore.prepare(q);
-
-    Iterable<Entity> entities = 
-        pq.asIterable(FetchOptions.Builder.withOffset(offset).limit(limit));
-    List<FileData> files = new ArrayList<>();
-
-    for (Entity e : entities) {
-      FileData fileData = FileDataMapper.fromEntity(e);
-      files.add(fileData);
-    }
-
-    return files;
+    Iterable<Entity> entities = pq.asIterable(FetchOptions.Builder.withOffset(offset).limit(limit));
+    Iterable<FileData> files = Iterables.transform(entities, entityToFileData());
+    return Lists.newArrayList(files);
   }
 }

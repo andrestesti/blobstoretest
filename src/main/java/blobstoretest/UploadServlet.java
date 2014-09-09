@@ -15,6 +15,9 @@
  */
 package blobstoretest;
 
+import static blobstoretest.FileDataConverters.blobInfoToEntity;
+import static blobstoretest.FileDataConverters.fileDataToEntity;
+
 import blobstoretest.shared.ErrorMessage;
 import blobstoretest.shared.ErrorResponse;
 import blobstoretest.shared.FileData;
@@ -23,11 +26,11 @@ import com.google.appengine.api.blobstore.BlobInfo;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.common.collect.Iterables;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -83,14 +86,10 @@ public class UploadServlet extends HttpServlet {
     }
 
     List<BlobInfo> infos = blobs.get("files");
-    ArrayList<FileData> files = new ArrayList<>();
+    Iterable<FileData> files = Iterables.transform(infos, blobInfoToEntity());
+    Iterable<Entity> entities = Iterables.transform(files, fileDataToEntity());
 
-    for (BlobInfo i : infos) {
-      FileData fileData = new FileData(i.getFilename(), i.getBlobKey());
-      Entity entity = FileDataMapper.toEntity(fileData);
-      files.add(fileData);
-      datastore.put(entity);
-    }
+    datastore.put(entities);
 
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.getWriter().print(gson.toJson(files));

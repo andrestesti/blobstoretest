@@ -16,6 +16,7 @@
 package blobstoretest;
 
 import static org.junit.Assert.assertEquals;
+import static blobstoretest.FileDataConverters.fileDataToEntity;
 
 import blobstoretest.shared.FileData;
 
@@ -27,6 +28,8 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 import org.junit.After;
 import org.junit.Before;
@@ -64,21 +67,15 @@ public class ApiTest {
     Blobstoretest blobstoretest = new Blobstoretest(datastore, blobstore);
 
     List<FileData> savedFiles = generateFiles(10);
-    putEntities(datastore, savedFiles);
+    Iterable<Entity> entities = Iterables.transform(savedFiles, fileDataToEntity());    
+    datastore.put(entities);
     
     List<FileData> expected = savedFiles.subList(0, 5);
-    List<FileData> actual = blobstoretest.listFiles(null, 0, 5);
+    Iterable<FileData> actual = Lists.newArrayList(blobstoretest.listFiles(null, 0, 5));
 
     assertEquals(expected, actual);
   }
-  
-  private void putEntities(DatastoreService datastore, List<FileData> files) {
-    for (FileData f : files) {
-      Entity entity = FileDataMapper.toEntity(f);
-      datastore.put(entity);
-    }
-  }
-  
+    
   private List<FileData> generateFiles(int count) {
     ArrayList<FileData> files = new ArrayList<>();
     for (int i = 0; i < count; i++) {
